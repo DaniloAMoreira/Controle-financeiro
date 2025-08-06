@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle Financeiro Doméstico - Completo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        .header-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .btn-primary {
+            background: linear-gradient(to right, #667eea, #764ba2);
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+        .category-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-overlay {
+            background-color: rgba(0,0,0,0.5);
+        }
+        /* Estilos para o Dark Mode (descomente e ajuste conforme necessário) */
+        /*
+        .dark-mode {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        .dark-mode .bg-white {
+            background-color: #2d3748;
+        }
+        .dark-mode .text-gray-800 {
+            color: #e2e8f0;
+        }
+        .dark-mode .text-gray-500 {
+            color: #a0aec0;
+        }
+        .dark-mode input, .dark-mode select {
+            background-color: #4a5568;
+            border-color: #64748B;
+            color: #e2e8f0;
+        }
+        .dark-mode input::placeholder {
+            color: #a0aec0;
+        }
+        .dark-mode table {
+            color: #e2e8f0;
+        }
+        .dark-mode table thead th {
+            color: #a0aec0;
+        }
+        .dark-mode .border-gray-200 {
+            border-color: #4a5568;
+        }
+        .dark-mode .shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.18);
+        }
+        */
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="header-gradient text-white shadow-lg">
+            <div class="container mx-auto px-4 py-6">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-2xl font-bold flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Controle Financeiro
+                    </h1>
+                    <div class="flex items-center space-x-4">
+                        <button id="export-btn" class="px-3 py-1 bg-white bg-opacity-20 rounded-md hover:bg-opacity-30 transition flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Exportar
+                        </button>
+                        <button id="categories-btn" class="px-3 py-1 bg-white bg-opacity-20 rounded-md hover:bg-opacity-30 transition flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                            </svg>
+                            Categorias
+                        </button>
+                        <button id="theme-toggle" class="p-2 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="container mx-auto px-4 py-8">
+            <!-- Dashboard Overview -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-gray-500 font-medium mb-1">Saldo Total</h3>
+                    <p id="total-balance" class="text-3xl font-bold text-gray-800">R$ 0,00</p>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-gray-500 font-medium mb-1">Receitas</h3>
+                    <p id="total-income" class="text-3xl font-bold text-green-600">R$ 0,00</p>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-gray-500 font-medium mb-1">Despesas</h3>
+                    <p id="total-expense" class="text-3xl font-bold text-red-500">R$ 0,00</p>
+                </div>
+            </section>
+
+            <!-- Advanced Filters -->
+            <section class="bg-white rounded-lg shadow p-6 mb-8">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Filtros Avançados</h2>
+                <form id="filters-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label for="filter-type" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                        <select id="filter-type" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="all">Todos</option>
+                            <option value="income">Receitas</option>
+                            <option value="expense">Despesas</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filter-category" class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                        <select id="filter-category" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="all">Todas</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filter-start-date" class="block text-sm font-medium text-gray-700 mb-1">Data Inicial</label>
+                        <input type="date" id="filter-start-date" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label for="filter-end-date" class="block text-sm font-medium text-gray-700 mb-1">Data Final</label>
+                        <input type="date" id="filter-end-date" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div class="md:col-span-4 flex justify-end space-x-3">
+                        <button type="reset" id="reset-filters" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition">
+                            Limpar Filtros
+                        </button>
+                        <button type="submit" class="btn-primary text-white px-4 py-2 rounded-md">
+                            Aplicar Filtros
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Add Transaction Form -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow p-6 sticky top-8">
+                        <h2 class="text-xl font-semibold mb-4 text-gray-800">Adicionar Transação</h2>
+                        <form id="transaction-form" class="space-y-4">
+                            <div>
+                                <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                                <select id="type" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                    <option value="income">Receita</option>
+                                    <option value="expense">Despesa</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                                <select id="category" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                    <option value="alimentacao">Alimentação</option>
+                                    <option value="moradia">Moradia</option>
+                                    <option value="transporte">Transporte</option>
+                                    <option value="lazer">Lazer</option>
+                                    <option value="saude">Saúde</option>
+                                    <option value="educacao">Educação</option>
+                                    <option value="outros">Outros</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                                <input type="text" id="description" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Ex: Supermercado" required>
+                            </div>
+                            <div>
+                                <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Valor</label>
+                                <input type="number" step="0.01" id="amount" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="R$ 0,00" required>
+                            </div>
+                            <div>
+                                <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                                <input type="date" id="date" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                            </div>
+                            <button type="submit" class="w-full btn-primary text-white py-2 px-4 rounded-md font-medium transition">
+                                Adicionar Transação
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Charts and Transactions -->
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- Reports Tabs -->
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="border-b border-gray-200">
+                            <nav class="flex -mb-px">
+                                <button id="expenses-tab" class="mr-8 py-4 px-1 border-b-2 font-medium text-sm border-purple-500 text-purple-600">
+                                    Distribuição de Gastos
+                                </button>
+                                <button id="balance-tab" class="mr-8 py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                    Evolução do Saldo
+                                </button>
+                                <button id="monthly-tab" class="py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                    Mensal
+                                </button>
+                            </nav>
+                        </div>
+                        <div class="p-6">
+                            <div id="expenses-chart-container" class="h-64">
+                                <canvas id="expenses-chart"></canvas>
+                            </div>
+                            <div id="balance-chart-container" class="h-64 hidden">
+                                <canvas id="balance-chart"></canvas>
+                            </div>
+                            <div id="monthly-chart-container" class="h-64 hidden">
+                                <canvas id="monthly-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transactions List -->
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex justify-between items-center">
+                                <h2 class="text-xl font-semibold text-gray-800">Histórico de Transações</h2>
+                                <!-- Filtros rápidos no histórico (duplicados, mas mantidos para compatibilidade) -->
+                                <div class="flex space-x-2">
+                                    <select id="filter-type-quick" class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                        <option value="all">Todos</option>
+                                        <option value="income">Receitas</option>
+                                        <option value="expense">Despesas</option>
+                                    </select>
+                                    <select id="filter-category-quick" class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                        <option value="all">Todas Categorias</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactions-list" class="bg-white divide-y divide-gray-200">
+                                    <!-- Transactions will be added here dynamically -->
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">Nenhuma transação registrada ainda.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit Transaction Modal -->
+    <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Editar Transação</h3>
+                <button id="close-modal" class="text-gray-400 hover:text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form id="edit-form">
+                <input type="hidden" id="edit-id">
+                <div class="space-y-4">
+                    <div>
+                        <label for="edit-type" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                        <select id="edit-type" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="income">Receita</option>
+                            <option value="expense">Despesa</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="edit-category" class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                        <select id="edit-category" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="alimentacao">Alimentação</option>
+                            <option value="moradia">Moradia</option>
+                            <option value="transporte">Transporte</option>
+                            <option value="lazer">Lazer</option>
+                            <option value="saude">Saúde</option>
+                            <option value="educacao">Educação</option>
+                            <option value="outros">Outros</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="edit-description" class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                        <input type="text" id="edit-description" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label for="edit-amount" class="block text-sm font-medium text-gray-700 mb-1">Valor</label>
+                        <input type="number" step="0.01" id="edit-amount" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label for="edit-date" class="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                        <input type="date" id="edit-date" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" id="delete-transaction" class="px-4 py-2 border border-red-500 text-red-500 rounded-md hover:bg-red-50 transition">
+                        Excluir
+                    </button>
+                    <button type="submit" class="btn-primary text-white px-4 py-2 rounded-md">
+                        Salvar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Categories Modal -->
+    <div id="categories-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Gerenciar Categorias</h3>
+                <button id="close-categories-modal" class="text-gray-400 hover:text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form id="category-form" class="space-y-4">
+                <div>
+                    <label for="category-name" class="block text-sm font-medium text-gray-700 mb-1">Nome da Categoria</label>
+                    <input type="text" id="category-name" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Ex: Viagem" required>
+                </div>
+                <div>
+                    <label for="category-color" class="block text-sm font-medium text-gray-700 mb-1">Cor</label>
+                    <input type="color" id="category-color" class="w-full h-10 border border-gray-300 rounded-md" value="#64748B">
+                </div>
+                <div>
+                    <label for="category-icon" class="block text-sm font-medium text-gray-700 mb-1">Ícone (Emoji)</label>
+                    <input type="text" id="category-icon" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Ex: ✈️">
+                </div>
+                <button type="submit" class="w-full btn-primary text-white py-2 px-4 rounded-md font-medium transition">
+                    Adicionar Categoria
+                </button>
+            </form>
+            <div class="mt-6">
+                <h4 class="text-md font-semibold mb-2">Categorias Existentes</h4>
+                <ul id="categories-list" class="space-y-2">
+                    <!-- Existing categories will be loaded here -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample Data (would be replaced with localStorage or API in real app)
+        let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+        let userCategories = JSON.parse(localStorage.getItem("userCategories")) || {};
+        
+        // Default categories
+        const defaultCategories = {
+            alimentacao: { name: "Alimentação", color: "#F59E0B", icon: "🍔" },
+            moradia: { name: "Moradia", color: "#3B82F6", icon: "🏠" },
+            transporte: { name: "Transporte", color: "#10B981", icon: "🚗" },
+            lazer: { name: "Lazer", color: "#EC4899", icon: "🎭" },
+            saude: { name: "Saúde", color: "#EF4444", icon: "🏥" },
+            educacao: { name: "Educação", color: "#8B5CF6", icon: "📚" },
+            outros: { name: "Outros", color: "#64748B", icon: "📦" }
+        };
+
+        // Merge default and user-defined categories
+        let categories = { ...defaultCategories, ...userCategories };
+
+        // DOM Elements
+        const transactionForm = document.getElementById("transaction-form");
+        const transactionsList = document.getElementById("transactions-list");
+        const totalBalanceElement = document.getElementById("total-balance");
+        const totalIncomeElement = document.getElementById("total-income");
+        const totalExpenseElement = document.getElementById("total-expense");
+        const filterType = document.getElementById("filter-type"); // Filtro avançado
+        const filterCategory = document.getElementById("filter-category"); // Filtro avançado
+        const filterStartDate = document.getElementById("filter-start-date"); // Filtro avançado
+        const filterEndDate = document.getElementById("filter-end-date"); // Filtro avançado
+        const filtersForm = document.getElementById("filters-form"); // Formulário de filtros avançados
+        const resetFiltersBtn = document.getElementById("reset-filters"); // Botão de reset de filtros
+        const editModal = document.getElementById("edit-modal");
+        const editForm = document.getElementById("edit-form");
+        const closeModal = document.getElementById("close-modal");
+        const deleteBtn = document.getElementById("delete-transaction");
+        const exportBtn = document.getElementById("export-btn");
+        const categoriesBtn = document.getElementById("categories-btn");
+        const categoriesModal = document.getElementById("categories-modal");
+        const closeCategoriesModal = document.getElementById("close-categories-modal");
+        const categoryForm = document.getElementById("category-form");
+        const categoriesListElement = document.getElementById("categories-list");
+        const themeToggle = document.getElementById("theme-toggle");
+
+        // Chart Elements
+        const expensesChartCanvas = document.getElementById("expenses-chart");
+        const balanceChartCanvas = document.getElementById("balance-chart");
+        const monthlyChartCanvas = document.getElementById("monthly-chart");
+        let expensesChart, balanceChart, monthlyChart;
+
+        // Tab Elements
+        const expensesTab = document.getElementById("expenses-tab");
+        const balanceTab = document.getElementById("balance-tab");
+        const monthlyTab = document.getElementById("monthly-tab");
+        const expensesChartContainer = document.getElementById("expenses-chart-container");
+        const balanceChartContainer = document.getElementById("balance-chart-container");
+        const monthlyChartContainer = document.getElementById("monthly-chart-container");
+
+        // Filtros rápidos no histórico (para manter a compatibilidade, mas o principal é o filtro avançado)
+        const filterTypeQuick = document.getElementById("filter-type-quick");
+        const filterCategoryQuick = document.getElementById("filter-category-quick");
+
+
+        // Initialize date fields
+        document.getElementById("date").valueAsDate = new Date();
+        document.getElementById("edit-date").valueAsDate = new Date();
+
+        // Event Listeners
+        transactionForm.addEventListener("submit", addTransaction);
+        filtersForm.addEventListener("submit", applyFilters); // Evento para o formulário de filtros avançados
+        resetFiltersBtn.addEventListener("click", resetFilters); // Evento para o botão de reset
+        closeModal.addEventListener("click", () => editModal.classList.add("hidden"));
+        editForm.addEventListener("submit", saveEditedTransaction);
+        deleteBtn.addEventListener("click", deleteTransaction);
+        exportBtn.addEventListener("click", exportTransactions);
+        categoriesBtn.addEventListener("click", openCategoriesModal);
+        closeCategoriesModal.addEventListener("click", closeCategoriesModalFunc);
+        categoryForm.addEventListener("submit", addCategory);
+        themeToggle.addEventListener("click", toggleTheme);
+
+        // Tab Event Listeners
+        expensesTab.addEventListener("click", () => showTab("expenses"));
+        balanceTab.addEventListener("click", () => showTab("balance"));
+        monthlyTab.addEventListener("click", () => showTab("monthly"));
+
+        // Event listeners para os filtros rápidos do histórico (opcional, se quiser que funcionem independentemente dos filtros avançados)
+        filterTypeQuick.addEventListener("change", updateTransactionsUI);
+        filterCategoryQuick.addEventListener("change", updateTransactionsUI);
+
+
+        // Initialize the app
+        loadCategoriesToForms();
+        updateSummary();
+        updateTransactionsUI();
+        initCharts();
+        loadTheme();
+        showTab("expenses"); // Default tab
+
+        // Functions
+        function saveTransactions() {
+            localStorage.setItem("transactions", JSON.stringify(transactions));
+        }
+
+        function saveCategories() {
+            localStorage.setItem("userCategories", JSON.stringify(userCategories));
+            categories = { ...defaultCategories, ...userCategories }; // Re-merge categories
+            loadCategoriesToForms(); // Update category dropdowns
+            updateTransactionsUI(); // Refresh UI with new categories
+            updateCharts(); // Refresh charts with new categories
+        }
+
+        function loadCategoriesToForms() {
+            const categorySelects = document.querySelectorAll("select#category, select#edit-category, select#filter-category, select#filter-category-quick");
+            categorySelects.forEach(select => {
+                const currentSelected = select.value;
+                // Limpa as opções existentes, exceto a "Todas" para os filtros
+                select.innerHTML = select.id.includes("filter-category") ? "<option value=\"all\">Todas</option>" : "";
+                for (const key in categories) {
+                    const option = document.createElement("option");
+                    option.value = key;
+                    option.textContent = categories[key].name;
+                    select.appendChild(option);
+                }
+                select.value = currentSelected; // Restore previously selected value
+            });
+        }
+
+        function addTransaction(e) {
+            e.preventDefault();
+            
+            const type = document.getElementById("type").value;
+            const category = document.getElementById("category").value;
+            const description = document.getElementById("description").value;
+            const amount = parseFloat(document.getElementById("amount").value);
+            const date = document.getElementById("date").value;
+            
+            if (!description || isNaN(amount) || amount <= 0) {
+                showAlert("Por favor, preencha todos os campos corretamente e insira um valor positivo.", "error");
+                return;
+            }
+            
+            const transaction = {
+                id: Date.now(),
+                type,
+                category,
+                description,
+                amount,
+                date
+            };
+            
+            transactions.push(transaction);
+            saveTransactions();
+            
+            // Reset form
+            transactionForm.reset();
+            document.getElementById("date").valueAsDate = new Date();
+            
+            // Update UI
+            updateSummary();
+            updateTransactionsUI();
+            updateCharts();
+            
+            // Show success message
+            showAlert("Transação adicionada com sucesso!", "success");
+            
+            // Scroll to the new transaction
+            const newTransaction = document.querySelector(`[data-id="${transaction.id}"]`);
+            if (newTransaction) {
+                newTransaction.scrollIntoView({ behavior: "smooth" });
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.createElement("div");
+            alertDiv.className = `fixed top-4 right-4 px-6 py-4 rounded-md shadow-lg text-white font-medium z-50 alert-transition ${type === "error" ? "bg-red-500" : "bg-green-500"}`;
+            alertDiv.textContent = message;
+            
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.classList.add("opacity-0", "transition-opacity", "duration-300");
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        function updateSummary() {
+            const incomeTotal = transactions
+                .filter(t => t.type === "income")
+                .reduce((sum, t) => sum + t.amount, 0);
+                
+            const expenseTotal = transactions
+                .filter(t => t.type === "expense")
+                .reduce((sum, t) => sum + t.amount, 0);
+                
+            const balanceTotal = incomeTotal - expenseTotal;
+            
+            totalIncomeElement.textContent = formatCurrency(incomeTotal);
+            totalExpenseElement.textContent = formatCurrency(expenseTotal);
+            totalBalanceElement.textContent = formatCurrency(balanceTotal);
+            
+            // Update balance color based on value
+            totalBalanceElement.className = "text-3xl font-bold " + 
+                (balanceTotal > 0 ? "text-green-600" : balanceTotal < 0 ? "text-red-500" : "text-gray-800");
+        }
+
+        function formatCurrency(value) {
+            return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+        }
+
+        function formatDate(dateString) {
+            const options = { day: "2-digit", month: "2-digit", year: "numeric" };
+            return new Date(dateString + "T00:00:00").toLocaleDateString("pt-BR", options); // Add T00:00:00 to avoid timezone issues
+        }
+
+        function applyFilters(e) {
+            e.preventDefault();
+            updateTransactionsUI();
+            updateCharts();
+        }
+
+        function resetFilters() {
+            filterType.value = "all";
+            filterCategory.value = "all";
+            filterStartDate.value = "";
+            filterEndDate.value = "";
+            // Também reseta os filtros rápidos do histórico, se existirem
+            if (filterTypeQuick) filterTypeQuick.value = "all";
+            if (filterCategoryQuick) filterCategoryQuick.value = "all";
+
+            updateTransactionsUI();
+            updateCharts();
+        }
+
+        function getFilteredTransactions() {
+            // Prioriza os filtros avançados. Se não estiverem sendo usados, usa os filtros rápidos do histórico.
+            const typeFilter = filterType.value !== "all" ? filterType.value : (filterTypeQuick ? filterTypeQuick.value : "all");
+            const categoryFilter = filterCategory.value !== "all" ? filterCategory.value : (filterCategoryQuick ? filterCategoryQuick.value : "all");
+            const startDateFilter = filterStartDate.value;
+            const endDateFilter = filterEndDate.value;
+            
+            let filtered = [...transactions];
+            
+            if (typeFilter !== "all") {
+                filtered = filtered.filter(t => t.type === typeFilter);
+            }
+            
+            if (categoryFilter !== "all") {
+                filtered = filtered.filter(t => t.category === categoryFilter);
+            }
+            
+            if (startDateFilter) {
+                filtered = filtered.filter(t => new Date(t.date) >= new Date(startDateFilter));
+            }
+            
+            if (endDateFilter) {
+                filtered = filtered.filter(t => new Date(t.date) <= new Date(endDateFilter));
+            }
+
+            return filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+        }
+
+        function updateTransactionsUI() {
+            const filteredTransactions = getFilteredTransactions();
+            
+            if (filteredTransactions.length === 0) {
+                transactionsList.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
+                            Nenhuma transação encontrada com os filtros aplicados.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            transactionsList.innerHTML = "";
+            
+            filteredTransactions.forEach(transaction => {
+                const categoryConfig = categories[transaction.category] || categories.outros; // Fallback to 'outros'
+                const isIncome = transaction.type === "income";
+                
+                const row = document.createElement("tr");
+                row.className = "fade-in";
+                row.setAttribute("data-id", transaction.id); // Add data-id for easy selection
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${formatDate(transaction.date)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        ${transaction.description}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex items-center">
+                            <span class="category-color" style="background-color: ${categoryConfig.color};"></span>
+                            ${categoryConfig.icon} ${categoryConfig.name}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm ${isIncome ? "text-green-600" : "text-red-500"}">
+                        ${isIncome ? "+" : "-"}${formatCurrency(transaction.amount)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-purple-600 hover:text-purple-900 mr-3 edit-btn" data-id="${transaction.id}">
+                            Editar
+                        </button>
+                    </td>
+                `;
+                
+                transactionsList.appendChild(row);
+            });
+            
+            // Add event listeners to edit buttons
+            document.querySelectorAll(".edit-btn").forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    const id = parseInt(e.target.getAttribute("data-id"));
+                    openEditModal(id);
+                });
+            });
+        }
+
+        function openEditModal(id) {
+            const transaction = transactions.find(t => t.id === id);
+            if (!transaction) return;
+            
+            document.getElementById("edit-id").value = transaction.id;
+            document.getElementById("edit-type").value = transaction.type;
+            document.getElementById("edit-category").value = transaction.category;
+            document.getElementById("edit-description").value = transaction.description;
+            document.getElementById("edit-amount").value = transaction.amount;
+            document.getElementById("edit-date").value = transaction.date;
+            
+            editModal.classList.remove("hidden");
+        }
+
+        function saveEditedTransaction(e) {
+            e.preventDefault();
+            
+            const id = parseInt(document.getElementById("edit-id").value);
+            const type = document.getElementById("edit-type").value;
+            const category = document.getElementById("edit-category").value;
+            const description = document.getElementById("edit-description").value;
+            const amount = parseFloat(document.getElementById("edit-amount").value);
+            const date = document.getElementById("edit-date").value;
+            
+            if (!description || isNaN(amount) || amount <= 0) {
+                showAlert("Por favor, preencha todos os campos corretamente e insira um valor positivo.", "error");
+                return;
+            }
+            
+            const transactionIndex = transactions.findIndex(t => t.id === id);
+            if (transactionIndex !== -1) {
+                transactions[transactionIndex] = {
+                    id,
+                    type,
+                    category,
+                    description,
+                    amount,
+                    date
+                };
+                
+                saveTransactions();
+                updateSummary();
+                updateTransactionsUI();
+                updateCharts();
+                
+                editModal.classList.add("hidden");
+                showAlert("Transação atualizada com sucesso!", "success");
+            }
+        }
+
+        function deleteTransaction() {
+            const id = parseInt(document.getElementById("edit-id").value);
+            
+            // Confirmação antes de excluir
+            if (!confirm("Tem certeza que deseja excluir esta transação? Esta ação é irreversível.")) {
+                return;
+            }
+
+            transactions = transactions.filter(t => t.id !== id);
+            saveTransactions();
+            updateSummary();
+            updateTransactionsUI();
+            updateCharts();
+            
+            editModal.classList.add("hidden");
+            showAlert("Transação excluída com sucesso!", "success");
+        }
+
+        function initCharts() {
+            // Destrói instâncias de gráficos existentes para evitar duplicação
+            if (expensesChart) expensesChart.destroy();
+            if (balanceChart) balanceChart.destroy();
+            if (monthlyChart) monthlyChart.destroy();
+
+            const expensesCtx = expensesChartCanvas.getContext("2d");
+            expensesChart = new Chart(expensesCtx, {
+                type: "doughnut",
+                data: getExpensesChartData(),
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: "right",
+                        }
+                    }
+                }
+            });
+
+            const balanceCtx = balanceChartCanvas.getContext("2d");
+            balanceChart = new Chart(balanceCtx, {
+                type: "line",
+                data: getBalanceChartData(),
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: "time",
+                            time: {
+                                unit: "day"
+                            },
+                            title: {
+                                display: true,
+                                text: "Data"
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: "Saldo"
+                            }
+                        }
+                    }
+                }
+            });
+
+            const monthlyCtx = monthlyChartCanvas.getContext("2d");
+            monthlyChart = new Chart(monthlyCtx, {
+                type: "bar",
+                data: getMonthlyChartData(),
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: "top",
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: "Mês"
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: "Valor"
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCharts() {
+            // Atualiza os dados e redesenha os gráficos
+            if (expensesChart) {
+                expensesChart.data = getExpensesChartData();
+                expensesChart.update();
+            }
+            if (balanceChart) {
+                balanceChart.data = getBalanceChartData();
+                balanceChart.update();
+            }
+            if (monthlyChart) {
+                monthlyChart.data = getMonthlyChartData();
+                monthlyChart.update();
+            }
+        }
+
+        function getExpensesChartData() {
+            const filteredTransactions = getFilteredTransactions();
+            const expenseTransactions = filteredTransactions.filter(t => t.type === "expense");
+            
+            const categoryTotals = {};
+            expenseTransactions.forEach(t => {
+                if (!categoryTotals[t.category]) {
+                    categoryTotals[t.category] = 0;
+                }
+                categoryTotals[t.category] += t.amount;
+            });
+            
+            const categoryNames = Object.keys(categoryTotals);
+            
+            return {
+                labels: categoryNames.map(cat => categories[cat] ? categories[cat].name : cat),
+                datasets: [{
+                    data: categoryNames.map(cat => categoryTotals[cat]),
+                    backgroundColor: categoryNames.map(cat => categories[cat] ? categories[cat].color : "#CCCCCC"),
+                    borderWidth: 1
+                }]
+            };
+        }
+
+        function getBalanceChartData() {
+            const filteredTransactions = getFilteredTransactions();
+            const sortedTransactions = [...filteredTransactions].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            const balanceOverTime = [];
+            let currentBalance = 0;
+            sortedTransactions.forEach(t => {
+                if (t.type === "income") {
+                    currentBalance += t.amount;
+                } else {
+                    currentBalance -= t.amount;
+                }
+                balanceOverTime.push({ date: t.date, balance: currentBalance });
+            });
+
+            return {
+                labels: balanceOverTime.map(data => data.date),
+                datasets: [{
+                    label: "Saldo",
+                    data: balanceOverTime.map(data => data.balance),
+                    borderColor: "#667eea",
+                    tension: 0.1,
+                    fill: false
+                }]
+            };
+        }
+
+        function getMonthlyChartData() {
+            const filteredTransactions = getFilteredTransactions();
+            const monthlyData = {};
+
+            filteredTransactions.forEach(t => {
+                const monthYear = new Date(t.date).toLocaleString("pt-BR", { month: "short", year: "2-digit" });
+                if (!monthlyData[monthYear]) {
+                    monthlyData[monthYear] = { income: 0, expense: 0 };
+                }
+                if (t.type === "income") {
+                    monthlyData[monthYear].income += t.amount;
+                } else {
+                    monthlyData[monthYear].expense += t.amount;
+                }
+            });
+
+            const sortedMonths = Object.keys(monthlyData).sort((a, b) => {
+                // Converte para objetos Date para comparação correta
+                const [monthA, yearA] = a.split("/");
+                const [monthB, yearB] = b.split("/");
+                // Assume que o ano é 20xx, ajusta para 2000 + ano
+                return new Date(`20${yearA}-${monthA}-01`) - new Date(`20${yearB}-${monthB}-01`);
+            });
+
+            return {
+                labels: sortedMonths,
+                datasets: [
+                    {
+                        label: "Receitas",
+                        data: sortedMonths.map(month => monthlyData[month].income),
+                        backgroundColor: "#10B981"
+                    },
+                    {
+                        label: "Despesas",
+                        data: sortedMonths.map(month => monthlyData[month].expense),
+                        backgroundColor: "#EF4444"
+                    }
+                ]
+            };
+        }
+
+        function showTab(tabName) {
+            // Esconde todos os containers de gráficos
+            expensesChartContainer.classList.add("hidden");
+            balanceChartContainer.classList.add("hidden");
+            monthlyChartContainer.classList.add("hidden");
+
+            // Remove a classe ativa de todas as abas
+            expensesTab.classList.remove("border-purple-500", "text-purple-600");
+            expensesTab.classList.add("border-transparent", "text-gray-500", "hover:text-gray-700", "hover:border-gray-300");
+            balanceTab.classList.remove("border-purple-500", "text-purple-600");
+            balanceTab.classList.add("border-transparent", "text-gray-500", "hover:text-gray-700", "hover:border-gray-300");
+            monthlyTab.classList.remove("border-purple-500", "text-purple-600");
+            monthlyTab.classList.add("border-transparent", "text-gray-500", "hover:text-gray-700", "hover:border-gray-300");
+
+            // Mostra o container do gráfico selecionado e adiciona a classe ativa à aba
+            if (tabName === "expenses") {
+                expensesChartContainer.classList.remove("hidden");
+                expensesTab.classList.add("border-purple-500", "text-purple-600");
+                expensesTab.classList.remove("border-transparent", "text-gray-500", "hover:text-gray-700", "hover:border-gray-300");
+            } else if (tabName === "balance") {
+                balanceChartContainer.classList.remove("hidden");
+                balanceTab.classList.add("border-purple-500", "text-purple-600");
+                balanceTab.classList.remove("border-transparent", "text-gray-500", "hover:text-gray-700", "hover:border-gray-300");
+            } else if (tabName === "monthly") {
+                monthlyChartContainer.classList.remove("hidden");
+                monthlyTab.classList.add("border-purple-500", "text-purple-600");
+                monthlyTab.classList.remove("border-transparent", "text-gray-500", "hover:text-gray-700", "hover:border-gray-300");
+            }
+            updateCharts(); // Garante que o gráfico visível seja atualizado
+        }
+
+
+        function exportTransactions() {
+            // Implementação simples de exportação CSV.
+            // Para Excel, você precisaria de uma biblioteca mais complexa ou um backend.
+            const data = getFilteredTransactions().map(t => ({
+                Data: formatDate(t.date),
+                Tipo: t.type === "income" ? "Receita" : "Despesa",
+                Categoria: categories[t.category] ? categories[t.category].name : t.category,
+                Descricao: t.description,
+                Valor: t.amount
+            }));
+
+            if (data.length === 0) {
+                showAlert("Nenhuma transação para exportar com os filtros atuais.", "error");
+                return;
+            }
+
+            const csvContent = "data:text/csv;charset=utf-8," 
+                + Object.keys(data[0]).join(",") + "\n"
+                + data.map(e => Object.values(e).join(",")).join("\n");
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "transacoes.csv");
+            document.body.appendChild(link); 
+            link.click();
+            document.body.removeChild(link);
+            showAlert("Transações exportadas para CSV!", "success");
+        }
+
+        function openCategoriesModal() {
+            categoriesModal.classList.remove("hidden");
+            renderCategoriesList();
+        }
+
+        function closeCategoriesModalFunc() {
+            categoriesModal.classList.add("hidden");
+        }
+
+        function addCategory(e) {
+            e.preventDefault();
+            const name = document.getElementById("category-name").value.trim();
+            const color = document.getElementById("category-color").value;
+            const icon = document.getElementById("category-icon").value.trim();
+
+            if (!name) {
+                showAlert("O nome da categoria não pode ser vazio.", "error");
+                return;
+            }
+
+            // Cria uma chave simples para a categoria (slug)
+            const key = name.toLowerCase().replace(/[^a-z0-9]/g, ""); 
+            if (categories[key]) {
+                showAlert("Categoria com este nome já existe.", "error");
+                return;
+            }
+
+            userCategories[key] = { name, color, icon };
+            saveCategories();
+            categoryForm.reset();
+            renderCategoriesList();
+            showAlert("Categoria adicionada com sucesso!", "success");
+        }
+
+        function renderCategoriesList() {
+            categoriesListElement.innerHTML = "";
+            for (const key in categories) {
+                const category = categories[key];
+                const isDefault = defaultCategories.hasOwnProperty(key);
+
+                const listItem = document.createElement("li");
+                listItem.className = "flex justify-between items-center bg-gray-50 p-3 rounded-md";
+                listItem.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="category-color" style="background-color: ${category.color};"></span>
+                        ${category.icon} ${category.name}
+                    </div>
+                    ${isDefault ? 
+                        `<span class="text-gray-500 text-sm">Padrão</span>` : 
+                        `<button class="text-red-500 hover:text-red-700 delete-category-btn" data-key="${key}">
+                            Excluir
+                        </button>`
+                    }
+                `;
+                categoriesListElement.appendChild(listItem);
+            }
+
+            document.querySelectorAll(".delete-category-btn").forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    const keyToDelete = e.target.getAttribute("data-key");
+                    deleteCategory(keyToDelete);
+                });
+            });
+        }
+
+        function deleteCategory(key) {
+            // Verifica se a categoria está vinculada a alguma transação
+            const isCategoryUsed = transactions.some(t => t.category === key);
+            if (isCategoryUsed) {
+                showAlert(`Não é possível excluir a categoria "${categories[key].name}" porque ela está vinculada a uma ou mais transações.`, "error");
+                return;
+            }
+
+            if (confirm(`Tem certeza que deseja excluir a categoria "${categories[key].name}"?`)) {
+                delete userCategories[key];
+                saveCategories();
+                renderCategoriesList();
+                showAlert("Categoria excluída com sucesso!", "success");
+            }
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle("dark-mode");
+            if (document.body.classList.contains("dark-mode")) {
+                localStorage.setItem("theme", "dark");
+            } else {
+                localStorage.setItem("theme", "light");
+            }
+        }
+
+        function loadTheme() {
+            if (localStorage.getItem("theme") === "dark") {
+                document.body.classList.add("dark-mode");
+            }
+        }
+
+    </script>
+</body>
+</html>
